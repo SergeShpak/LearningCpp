@@ -1,12 +1,15 @@
-#include <fstream>
-#include <stdexcept>
-#include <sstream>
-#include <vector>
 #include <string>
+#include <fstream>
+#include <sstream>
 #include <iostream>
+#include <vector>
+#include <stdexcept>
 
-#include "CoinSet.hpp"
+#include "SumSet.hpp"
 
+bool SumSet::initialized = false;
+int *SumSet::set = NULL;
+size_t SumSet::set_size = 0;
 
 static void check_for_duplicates(int *coin_set, size_t size) {
   for (int i = 0; i < size - 1; i++) {
@@ -15,10 +18,10 @@ static void check_for_duplicates(int *coin_set, size_t size) {
         throw std::invalid_argument("Duplicates were found in a set file");
       }
     }
-  }
+  }  
 }
 
-static size_t SplitCoinSetString(std::string coin_set_line, int* & coin_set) {
+static size_t SplitCoinSetString(std::string coin_set_line, int * &coin_set) {
   std::string::iterator it;
   char delim = ' ';
   int previous_delim_idx = 0;
@@ -51,10 +54,10 @@ static size_t SplitCoinSetString(std::string coin_set_line, int* & coin_set) {
     coin_set[i] = value;
   }
   check_for_duplicates(coin_set, coin_set_size);
-  return coin_set_size;
+  return coin_set_size;  
 }
 
-static size_t ReadCoinSet(const char * const coin_set_file, int * & coin_set) {
+static size_t ReadCoinSet(const char * const coin_set_file, int * &coin_set) {
   std::ifstream coin_fstream;
   coin_fstream.open(coin_set_file, std::ifstream::in);
   if (!coin_fstream.is_open()) {
@@ -65,32 +68,52 @@ static size_t ReadCoinSet(const char * const coin_set_file, int * & coin_set) {
   std::string line;
   std::getline(coin_fstream, line);
   size_t set_size = SplitCoinSetString(line, coin_set); 
-  return set_size;
+  return set_size; 
 }
 
-CoinSet::CoinSet(const char * const coin_set_file) {  
-  int *coin_set;
-  size_t coin_set_size = ReadCoinSet(coin_set_file, coin_set);
-  this->coin_set = coin_set;
-  this->coin_set_size = coin_set_size; 
+void SumSet::Initialize(const char * const coin_set_file) {
+  int *pset;
+  size_t set_size = ReadCoinSet(coin_set_file, pset);
+  SumSet::set = pset;
+  SumSet::set_size = set_size; 
+  SumSet::initialized = true;
 }
 
-CoinSet::~CoinSet() {
-  if (this->coin_set) {
-    delete[] this->coin_set;
+size_t SumSet::GetSetSize() {
+  if (! SumSet::initialized) {
+    throw std::runtime_error("SumSet is not initialized yet");
+  }
+  return SumSet::set_size;
+}
+
+SumSet::SumSet(int sum, int *counts) {
+  if (! SumSet::initialized) {
+    throw std::runtime_error("SumSet is not initialized yet");
+  }
+  this->sum = sum;
+  this->counts = new int[SumSet::set_size];
+  for (int i = 0; i < set_size; i++) {
+    this->counts[i] = counts[i];
   }
 }
 
-void CoinSet::PrintSet() {
-  std::stringstream is;
-  for (int i = 0; i < this->GetSetSize(); i++) {
-    is << this->coin_set[i] << " ";
-  }  
-  is << std::endl;
-  std::cout << is.str() << std::endl;
+std::string SumSet::ToString() {
+  size_t set_size = SumSet::GetSetSize();
+  std::stringstream ss;
+  ss << "Denomination\t\tValue\n";
+  for (int i = 0; i < set_size; i++) {
+    ss << this->set[i] << "\t-\t" << this->counts[i] << "\n"; 
+  }
+  ss << "Sum: " << this->sum << std::endl;
+  return ss.str();
 }
 
-size_t CoinSet::GetSetSize() {
-  size_t set_size = this->coin_set_size;
-  return set_size;
+SumSet::~SumSet() {
+  if (this->counts) {
+    delete[] this->counts;
+  }
+}
+
+const int *SumSet::GetCoinSet() {
+  return SumSet::set;
 }
