@@ -21,11 +21,12 @@ void sort::MergeSort::Merge(int * & values, int first_start_idx,
         second_part[i] = values[second_start_idx + i];
     }
 
-    int first_curr_idx, second_curr_idx = 0;
+    int first_curr_idx = 0, second_curr_idx = 0;
     int original_arr_idx = first_start_idx;
-    bool first_not_empty, second_not_empty = true;
+    bool first_not_empty = true, second_not_empty = true;
     while (true) {
-        bool is_first_bigger = first_part[first_curr_idx] > second_part[second_curr_idx];
+        bool is_first_bigger = 
+                    first_part[first_curr_idx] > second_part[second_curr_idx];
         if (is_first_bigger) {
             values[original_arr_idx] = second_part[second_curr_idx];
             second_curr_idx++;
@@ -54,7 +55,7 @@ void sort::MergeSort::Merge(int * & values, int first_start_idx,
     }
     if (second_not_empty) {
         rest = second_part;
-        rest_size = second_count - first_curr_idx;
+        rest_size = second_count - second_curr_idx;
         curr_idx = second_curr_idx;
     }
     copy_rest(rest, values, rest_size, curr_idx, original_arr_idx);
@@ -63,17 +64,19 @@ void sort::MergeSort::Merge(int * & values, int first_start_idx,
     delete[] second_part;
 }
 
-void sort::MergeSort::SortInternal(int * & values, int start_idx, int end_idx) {
+void sort::MergeSort::SortInternal(int * & values, 
+                                    int start_idx, int end_idx) {
     if (! (end_idx > start_idx)) {
         return;
     }
     int middle_idx = (start_idx + end_idx) / 2;
     sort::MergeSort::SortInternal(values, start_idx, middle_idx);
     sort::MergeSort::SortInternal(values, middle_idx + 1, end_idx);
-    sort::MergeSort::Merge(values, start_idx, middle_idx, end_idx - middle_idx);
+    sort::MergeSort::Merge(values, start_idx, middle_idx + 1, 
+                          end_idx - middle_idx);
 }
 
 
 void sort::MergeSort::Sort(int * & values, size_t count) {
-    sort::MergeSort::SortInternal(values, 1, count - 1);
+    sort::MergeSort::SortInternal(values, 0, count - 1);
 }

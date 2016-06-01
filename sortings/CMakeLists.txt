@@ -3,41 +3,50 @@ cmake_minimum_required(VERSION 3.2.3)
 set(CMAKE_CXX_COMPILER clang++)
 add_compile_options("-std=c++11")
 
+option(V "Verbose mode" OFF)
+
 set(PROJECT_NAME sorting)
 project(${PROJECT_NAME})
+
+IF(NOT ALGO_DEFINITION)
+    message(FATAL_ERROR "No algorithm specified (use ALGO_DEFINITION option)")
+ENDIF(NOT ALGO_DEFINITION)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-set(ALGO_DEFINITION SORTING_ALGO)
-set(MAIN_SRC ${SRC_DIR}/main.cpp ${SRC_DIR}/reporting.cpp)
+set(REPORTING_SRC ${SRC_DIR}/reporting.cpp)
 
-set(BUBBLE_S_DIR ${SRC_DIR}/bubble)
-set(BUBBLE_EXEC bubble)
-file(GLOB BUBBLE_SRC ${BUBBLE_S_DIR}/*)
-add_executable(${BUBBLE_EXEC} ${BUBBLE_SRC} ${MAIN_SRC})
-target_compile_definitions(${BUBBLE_EXEC} PRIVATE 
-                                                ${ALGO_DEFINITION}=BubbleSort)
+###############################################################################
+##  Algorithms section
+###############################################################################
 
-set(INSERTION_S_DIR ${SRC_DIR}/insertion)
-set(INSERTION_EXEC insertion)
-file(GLOB INSERTION_SRC ${INSERTION_S_DIR}/*)
-add_executable(${INSERTION_EXEC} ${INSERTION_SRC} ${BUBBLE_SRC} ${MAIN_SRC})
-target_compile_definitions(${INSERTION_EXEC} PRIVATE 
-                                            ${ALGO_DEFINITION}=InsertionSort)
+set(ALGO_SRC_DIR "")
+set(ALGO_EXEC "")
 
-#[[
-add_executable(${BUBBLE_EXEC} ${BUBBLE_SRC})
+IF(${ALGO_DEFINITION} STREQUAL "BubbleSort")
+    set(ALGO_SRC_DIR ${SRC_DIR}/bubble)
+    set(ALGO_EXEC bubble)
+ELSEIF(${ALGO_DEFINITION} STREQUAL "InsertionSort")
+    set(ALGO_SRC_DIR ${SRC_DIR}/insertion)
+    set(ALGO_EXEC insertion)
+ELSEIF(${ALGO_DEFINITION} STREQUAL "MergeSort")
+    set(ALGO_SRC_DIR ${SRC_DIR}/merge)
+    set(ALGO_EXEC merge)
+ELSE(${ALGO_DEFINITION} STREQUAL "BubbleSort")
+    message(FATAL_ERROR "Algorithm ${ALGO_DEFINITION} is not implemented")
+ENDIF(${ALGO_DEFINITION} STREQUAL "BubbleSort")
 
-set(INSERTION_S_DIR ${SRC_DIR}/insertion)
-set(INSERTION_EXEC insertion)
-file(GLOB INSERTION_SRC ${INSERTION_S_DIR}/*)
+file(GLOB ALGO_SRC ${ALGO_SRC_DIR}/*)
 
-add_executable(${INSERTION_EXEC} ${INSERTION_SRC})
+###############################################################################
+##  End of algorithm section
+###############################################################################
 
-set(MERGE_S_DIR ${SRC_DIR}/merge)
-set(MERGE_EXEC merge)
-file(GLOB MERGE_SRC ${MERGE_S_DIR}/*)
+IF(V)
+    message(STATUS "++ Chosen algorithm: ${ALGO_DEFINITION}")
+    message(STATUS "++ Algorithm source dir: ${ALGO_SRC_DIR}")
+    message(STATUS "++ Algorithm source files: ${ALGO_SRC}")
+ENDIF(V)
 
-add_executable(${MERGE_EXEC} ${MERGE_SRC})
-]]
+add_executable(${ALGO_EXEC} ${ALGO_SRC} ${REPORTING_SRC})
