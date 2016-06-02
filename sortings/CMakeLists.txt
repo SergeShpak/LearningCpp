@@ -9,7 +9,8 @@ set(PROJECT_NAME sorting)
 project(${PROJECT_NAME})
 
 IF(NOT ALGO_DEFINITION)
-    message(FATAL_ERROR "No algorithm specified (use ALGO_DEFINITION option)")
+    set(ALGO_DEFINITION "MergeSort")
+    #message(FATAL_ERROR "No algorithm specified (use ALGO_DEFINITION option)")
 ENDIF(NOT ALGO_DEFINITION)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
