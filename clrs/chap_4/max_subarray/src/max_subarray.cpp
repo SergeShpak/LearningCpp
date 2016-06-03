@@ -62,11 +62,13 @@ void chap4::MaxSubarraySolver::FindMaxSubarray(int *values,
 
 void chap4::MaxSubarraySolver::FindMaxCrossingSubarray (int *values, 
                 int low, int mid, int high, int& low_found, int& high_found) {
+  int max_sum = values[mid];
   int current_sum = values[mid];
   int left_max_index = mid; 
-  for (int i = mid - 1; i >= low; i++) {
+  for (int i = mid - 1; i >= low; i--) {
     int new_sum = current_sum + values[i];
-    if (new_sum >= current_sum) {
+    if (new_sum >= max_sum) {
+      max_sum = new_sum;
       left_max_index = i;
     }
     current_sum = new_sum;
@@ -75,7 +77,8 @@ void chap4::MaxSubarraySolver::FindMaxCrossingSubarray (int *values,
   int right_max_index = mid;
   for (int i = mid + 1; i <= high; i++) {
     int new_sum = current_sum + values[i];
-    if (new_sum >= current_sum) {
+    if (new_sum >= max_sum) {
+      max_sum = new_sum;
       right_max_index = i; 
     }
     current_sum = new_sum;
@@ -90,8 +93,4 @@ int chap4::MaxSubarraySolver::FindSum(int *values, int low, int high) {
     sum += values[i];
   }
   return sum;
-}
-
-int main(int argc, char* argv[]) {
-  return 0;
 }

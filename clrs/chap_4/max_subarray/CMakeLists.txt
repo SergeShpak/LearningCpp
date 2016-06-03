@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_CXX_COMPILER "clang++")
 add_compile_options("-std=c++11")
 
 include_directories(./include)
