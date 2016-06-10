@@ -17,7 +17,9 @@ include_directories(${GTEST_INCLUDE_DIRS} ${DATASTRUCTURES_INCLUDE_DIR})
 message("++datastructs - include_directories: ${GTEST_INCLUDE_DIRS}")
 add_executable(${PROJECT_NAME} ${SRC})
 
-add_dependencies(${PROJECT_NAME} ${GTEST_DEPENDENCY})
+IF(${BUILDING_GTEST})
+    add_dependencies(${PROJECT_NAME} googletest)
+ENDIF(${BUILDING_GTEST})
 target_link_libraries(${PROJECT_NAME} ${GTEST_LIBS_PATHS})
 
 set(TESTED_LIBS_PATHS "")
